@@ -15,16 +15,14 @@ output:
   - The `tidyverse` to utilize infix functions such as `%>%`
   - The `countrycode` package to join the country of origin to the continent it belongs in
   - The `knitr` package to show our data in a way that is more appialing
-  
-```{r, echo = FALSE, message = FALSE, warning=FALSE}
+  - The `reshape2` package to reshape my data. Although this can be achieved with pivot_longer/pivot_wider `reshape2` is easier to use
+```{r, message = FALSE, warning=FALSE}
 library(lubridate)
 library(jsonlite)
 library(tidyverse)
 library(countrycode)
 library(knitr)
-
-#library(rmarkdown)
-#library(httr)
+library(reshape2)
 ```
 
 # Creating New Functions / Data Manipulation
@@ -32,7 +30,7 @@ We are creating two functions:
 
   - `referrence_table_lookup()`: which lets us pull any countries covid data based on our input. This will be helpful if we want to loop through these countries to get similar analysis across the board.
   
-  - `referrence_table_clean()`: which pulls in `referrence_table_lookup()` and cleans it up to how we want to see the data for our plots down below.
+  - `referrence_table_clean()`: which pulls in `referrence_table_lookup()` and cleans it up to how we want to see the data for our plots down below. We also create a few new variables which we will use for out Exploratory Data Analysis (EDA).
 
 ```{r, message=FALSE}
 referrence_table <- fromJSON(
@@ -60,7 +58,7 @@ referrence_table_lookup(x,type) %>% filter(Date > as.Date("2021-01-01")) %>% gro
   }
 ```
 
-# Contingency Tables
+# Contingency Table
 We want to see how many individual countries we have per continent. Due to vast difference in population this doesn't tell us a huge amount with regards to any preditive models we could build but it's nice to know. There are a few terretories that are not accounted.
 
 ```{r}
@@ -80,11 +78,42 @@ Full_data <- bind_rows(referrence_table_clean("US","ISO2"),referrence_table_clea
 Full_data %>% summarise(avg_new_confirmed = round(mean(New_Confirmed, na.rm = TRUE)),avg_new_Deaths= round(mean(New_Deaths, na.rm = TRUE)))
 
 g <- ggplot(Full_data, aes(x = Date))
-g + geom_line(aes(y = New_Confirmed)) + facet_wrap(~ Country) + labs(title = "New Confimed cases by country", ylab = "Newly Confirmed Cases")
+g + geom_line(aes(y = New_Confirmed)) + labs(title = "New Confimed cases by country", ylab = "Newly Confirmed Cases") + facet_wrap(~ Country)
+
+
+#Further manipulating the data
+
+
 g + geom_line(aes(y = New_Deaths)) + facet_wrap(~ Country) + labs(title = "New Confimed cases by country", ylab = "Newly Confirmed Deaths")
+
+```
+
+# Plots
+
+```{r, warning=FALSE, message=FALSE}
+g <- ggplot(Full_data)
+g + geom_point(aes(x = New_Confirmed, y = New_Deaths, color = Country))
+g + geom_boxplot(aes(x = Country, y = New_Deaths, color = Country)) + theme(axis.text.x = element_text(angle = -45))
+
+
+Summary_data <- Full_data %>% group_by(Country) %>% summarise(Avg_Deaths = mean(New_Deaths, na.rm = TRUE), Avg_Confirmed = mean(New_Confirmed, na.rm = TRUE))
+q <- ggplot(melt(Summary_data), aes(x = Country, y = value, fill = variable, color = variable))
+q + geom_bar(stat = "identity", position = "dodge") + ylab("Average cases Confirmed or Dead") + theme(axis.text.x = element_text(angle = -45))
 
 ```
 
 
 
+```{r}
+q <- ggplot(Summary_data, aes(x = Country))
+q + geom_bar(aes(y = Avg_Confirmed), stat = "identity") + geom_bar(aes(y = Avg_Deaths), stat = "identity")
+
+
+
+
+
+
+q + geom_bar(aes(y = Avg_Confirmed), stat = "identity") + geom_bar(aes(y = Avg_Deaths), stat = "identity")
+
+```
 

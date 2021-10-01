@@ -7,7 +7,7 @@ Sergio Mora
     Vingette](#required-packages-for-this-vingette)
   - [Creating New Functions / Data
     Manipulation](#creating-new-functions--data-manipulation)
-  - [Contingency Tables](#contingency-tables)
+  - [Contingency Table](#contingency-table)
   - [Creating New Data Sets](#creating-new-data-sets)
   - [Numerical Summaries / Graphs](#numerical-summaries--graphs)
 
@@ -20,6 +20,16 @@ Sergio Mora
     continent it belongs in
   - The `knitr` package to show our data in a way that is more appialing
 
+<!-- end list -->
+
+``` r
+library(lubridate)
+library(jsonlite)
+library(tidyverse)
+library(countrycode)
+library(knitr)
+```
+
 # Creating New Functions / Data Manipulation
 
 We are creating two functions:
@@ -30,7 +40,8 @@ We are creating two functions:
 
   - `referrence_table_clean()`: which pulls in
     `referrence_table_lookup()` and cleans it up to how we want to see
-    the data for our plots down below.
+    the data for our plots down below. We also create a few new
+    variables which we will use for out Exploratory Data Analysis (EDA).
 
 <!-- end list -->
 
@@ -64,7 +75,7 @@ referrence_table_lookup(x,type) %>% filter(Date > as.Date("2021-01-01")) %>% gro
   }
 ```
 
-# Contingency Tables
+# Contingency Table
 
 We want to see how many individual countries we have per continent. Due
 to vast difference in population this doesn’t tell us a huge amount with
