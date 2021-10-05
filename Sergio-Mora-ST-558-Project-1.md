@@ -9,7 +9,7 @@ Sergio Mora
     Manipulation](#creating-new-functions--data-manipulation)
   - [Contingency Table](#contingency-table)
   - [Creating New Data Sets](#creating-new-data-sets)
-  - [Numerical Summaries / Graphs](#numerical-summaries--graphs)
+  - [Numerical Summaries / Plots](#numerical-summaries--plots)
 
 # Required Packages for this Vingette
 
@@ -19,6 +19,8 @@ Sergio Mora
   - The `countrycode` package to join the country of origin to the
     continent it belongs in
   - The `knitr` package to show our data in a way that is more appialing
+  - The `reshape2` package to reshape my data. Although this can be
+    achieved with pivot\_longer/pivot\_wider `reshape2` is easier to use
 
 <!-- end list -->
 
@@ -28,6 +30,7 @@ library(jsonlite)
 library(tidyverse)
 library(countrycode)
 library(knitr)
+library(reshape2)
 ```
 
 # Creating New Functions / Data Manipulation
@@ -109,33 +112,43 @@ that in our functions above.
 Full_data <- bind_rows(referrence_table_clean("US","ISO2"),referrence_table_clean("venezuela","Slug"),referrence_table_clean("France","Country"),referrence_table_clean("Colombia","Country"))
 ```
 
-# Numerical Summaries / Graphs
+# Numerical Summaries / Plots
+
+Because I don’t understand what negative new deaths means I will remove
+them for this analysis.
 
 ``` r
-Full_data %>% summarise(avg_new_confirmed = round(mean(New_Confirmed, na.rm = TRUE)),avg_new_Deaths= round(mean(New_Deaths, na.rm = TRUE)))
+g <- ggplot(Full_data %>% filter(New_Deaths >= 0))
+
+g + geom_point(aes(x = New_Confirmed, y = New_Deaths, color = Country)) + geom_smooth(aes(x = New_Confirmed, y = New_Deaths),method = "lm") + labs(title = "Scatter plot of New Confirmed cases Vs New Deaths along with a linear model.", caption = "There is a clear positive correlation.") + ylab("New Deaths") + xlab("New Confirmed")
 ```
-
-    ## # A tibble: 4 x 3
-    ##   Country                         avg_new_confirmed avg_new_Deaths
-    ##   <chr>                                       <dbl>          <dbl>
-    ## 1 Colombia                                     9097            237
-    ## 2 France                                      13032             66
-    ## 3 United States of America                   101700            988
-    ## 4 Venezuela (Bolivarian Republic)              1058             15
-
-``` r
-g <- ggplot(Full_data, aes(x = Date))
-g + geom_line(aes(y = New_Confirmed)) + facet_wrap(~ Country) + labs(title = "New Confimed cases by country", ylab = "Newly Confirmed Cases")
-```
-
-    ## Warning: Removed 1 row(s) containing missing values (geom_path).
 
 ![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
-g + geom_line(aes(y = New_Deaths)) + facet_wrap(~ Country) + labs(title = "New Confimed cases by country", ylab = "Newly Confirmed Deaths")
+g + geom_boxplot(aes(x = Country, y = New_Deaths, color = Country)) + theme(axis.text.x = element_text(angle = -15,hjust = -.1)) + labs(title = "Box Plot between Country and New Deaths", caption = "We see a few outliers") + ylab("New Deaths") + xlab("")
 ```
 
-    ## Warning: Removed 1 row(s) containing missing values (geom_path).
-
 ![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+
+``` r
+g +geom_histogram(aes(x = New_Deaths, group = Country, color = Country, y = ..density..), position = "dodge") + stat_density(aes(x = New_Deaths),geom = "line", color = "green") + labs(title = "Density histogram of New Deaths with a distribution line overlayed", caption = "Clearly left skewed moth days days we had 'low' number of new deaths") + xlab("New Confirmed")
+```
+
+![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->
+
+``` r
+g + geom_line(aes(x = Date,y = New_Deaths, group = Country, color = Country)) + labs(title = "New Confimed cases by country", caption = "Clear spikes that seem to lign up with our outliers") + ylab("Newly Confirmed Deaths")
+```
+
+![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-5-4.png)<!-- -->
+
+``` r
+Summary_data <- Full_data %>% group_by(Country) %>% summarise(Avg_Deaths = mean(New_Deaths, na.rm = TRUE), Avg_Confirmed = mean(New_Confirmed, na.rm = TRUE))
+
+q <- ggplot(melt(Summary_data), aes(x = Country, y = value, fill = variable, color = variable))
+
+q + geom_bar(stat = "identity", position = "dodge") + theme(axis.text.x = element_text(angle = -15,hjust = -.1)) + labs(title = "Average cases VS Average Deaths by country", caption = "We see only a 'small' percentage of cases are dying on average") + ylab("Average cases Confirmed or Dead") + xlab("")
+```
+
+![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-5-5.png)<!-- -->

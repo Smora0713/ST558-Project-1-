@@ -73,47 +73,29 @@ Full_data <- bind_rows(referrence_table_clean("US","ISO2"),referrence_table_clea
 ```
 
 
-# Numerical Summaries / Graphs
-```{r}
-Full_data %>% summarise(avg_new_confirmed = round(mean(New_Confirmed, na.rm = TRUE)),avg_new_Deaths= round(mean(New_Deaths, na.rm = TRUE)))
+# Numerical Summaries / Plots
 
-g <- ggplot(Full_data, aes(x = Date))
-g + geom_line(aes(y = New_Confirmed)) + labs(title = "New Confimed cases by country", ylab = "Newly Confirmed Cases") + facet_wrap(~ Country)
-
-
-#Further manipulating the data
-
-
-g + geom_line(aes(y = New_Deaths)) + facet_wrap(~ Country) + labs(title = "New Confimed cases by country", ylab = "Newly Confirmed Deaths")
-
-```
-
-# Plots
+Because I don't understand what negative new deaths means I will remove them for this analysis.
 
 ```{r, warning=FALSE, message=FALSE}
-g <- ggplot(Full_data)
-g + geom_point(aes(x = New_Confirmed, y = New_Deaths, color = Country))
-g + geom_boxplot(aes(x = Country, y = New_Deaths, color = Country)) + theme(axis.text.x = element_text(angle = -45))
+g <- ggplot(Full_data %>% filter(New_Deaths >= 0))
+
+g + geom_point(aes(x = New_Confirmed, y = New_Deaths, color = Country)) + geom_smooth(aes(x = New_Confirmed, y = New_Deaths),method = "lm") + labs(title = "Scatter plot of New Confirmed cases Vs New Deaths along with a linear model.", caption = "There is a clear positive correlation.") + ylab("New Deaths") + xlab("New Confirmed")
+
+g + geom_boxplot(aes(x = Country, y = New_Deaths, color = Country)) + theme(axis.text.x = element_text(angle = -15,hjust = -.1)) + labs(title = "Box Plot between Country and New Deaths", caption = "We see a few outliers") + ylab("New Deaths") + xlab("")
+
+g +geom_histogram(aes(x = New_Deaths, group = Country, color = Country, y = ..density..), position = "dodge") + stat_density(aes(x = New_Deaths),geom = "line", color = "green") + labs(title = "Density histogram of New Deaths with a distribution line overlayed", caption = "Clearly left skewed moth days days we had 'low' number of new deaths") + xlab("New Confirmed")
+
+
+
+
+g + geom_line(aes(x = Date,y = New_Deaths, group = Country, color = Country)) + labs(title = "New Confimed cases by country", caption = "Clear spikes that seem to lign up with our outliers") + ylab("Newly Confirmed Deaths")
 
 
 Summary_data <- Full_data %>% group_by(Country) %>% summarise(Avg_Deaths = mean(New_Deaths, na.rm = TRUE), Avg_Confirmed = mean(New_Confirmed, na.rm = TRUE))
+
 q <- ggplot(melt(Summary_data), aes(x = Country, y = value, fill = variable, color = variable))
-q + geom_bar(stat = "identity", position = "dodge") + ylab("Average cases Confirmed or Dead") + theme(axis.text.x = element_text(angle = -45))
 
-```
-
-
-
-```{r}
-q <- ggplot(Summary_data, aes(x = Country))
-q + geom_bar(aes(y = Avg_Confirmed), stat = "identity") + geom_bar(aes(y = Avg_Deaths), stat = "identity")
-
-
-
-
-
-
-q + geom_bar(aes(y = Avg_Confirmed), stat = "identity") + geom_bar(aes(y = Avg_Deaths), stat = "identity")
-
+q + geom_bar(stat = "identity", position = "dodge") + theme(axis.text.x = element_text(angle = -15,hjust = -.1)) + labs(title = "Average cases VS Average Deaths by country", caption = "We see only a 'small' percentage of cases are dying on average") + ylab("Average cases Confirmed or Dead") + xlab("")
 ```
 
