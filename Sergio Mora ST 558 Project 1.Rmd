@@ -25,6 +25,23 @@ library(knitr)
 library(reshape2)
 ```
 
+
+
+```{r, eval = FALSE, render=TRUE}
+rmarkdown::render("./Sergio Mora ST 558 Project 1.RMD", 
+              output_format = "github_document", 
+              output_file = "./README.md",
+              output_options = list(
+                name_value_pairs = "value",
+                or_something = TRUE,
+                toc = TRUE,
+                toc_depth = '1',
+                number_sections = TRUE,
+                df_print = 'tibble'
+                )
+              )
+```
+
 # Creating New Functions / Data Manipulation
 We are creating two functions:
 
@@ -32,7 +49,7 @@ We are creating two functions:
   
   - `referrence_table_clean()`: which pulls in `referrence_table_lookup()` and cleans it up to how we want to see the data for our plots down below. We also create a few new variables which we will use for out Exploratory Data Analysis (EDA).
 
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 referrence_table <- fromJSON(
     "https://api.covid19api.com/countries"
     )
@@ -84,7 +101,7 @@ g + geom_point(aes(x = New_Confirmed, y = New_Deaths, color = Country)) + geom_s
 
 g + geom_boxplot(aes(x = Country, y = New_Deaths, color = Country)) + theme(axis.text.x = element_text(angle = -15,hjust = -.1)) + labs(title = "Box Plot between Country and New Deaths", caption = "We see a few outliers") + ylab("New Deaths") + xlab("")
 
-g +geom_histogram(aes(x = New_Deaths, group = Country, color = Country, y = ..density..), position = "dodge") + stat_density(aes(x = New_Deaths),geom = "line", color = "green") + labs(title = "Density histogram of New Deaths with a distribution line overlayed", caption = "Clearly left skewed moth days days we had 'low' number of new deaths") + xlab("New Confirmed")
+g +geom_histogram(aes(x = New_Deaths, group = Country, color = Country, y = ..density..), position = "dodge") + stat_density(aes(x = New_Deaths),geom = "line", color = "green") + labs(title = "Density histogram of New Deaths with a distribution line overlayed", caption = "Clearly Right skewed moth days days we had 'low' number of new deaths") + xlab("New Confirmed")
 
 
 

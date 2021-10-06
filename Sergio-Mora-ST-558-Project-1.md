@@ -56,11 +56,7 @@ referrence_table <- fromJSON(
 
 # This gives us the continent that each country belong in. There are a few exception that this function does not count for, we will not acocunt for these manually since we are not looking at these individually and because my geography skills are awful.
 referrence_table <- referrence_table %>% mutate(continent = countrycode(sourcevar = referrence_table[, "Slug"], origin = "country.name", destination = "continent"))
-```
 
-    ## Warning in countrycode_convert(sourcevar = sourcevar, origin = origin, destination = dest, : Some values were not matched unambiguously: ala-aland-islands, antarctica, bouvet-island, british-indian-ocean-territory, cocos-keeling-islands, french-southern-territories, heard-and-mcdonald-islands, kosovo, micronesia, south-georgia-and-the-south-sandwich-islands, us-minor-outlying-islands, virgin-islands
-
-``` r
 #Creating a function to pull in any country data.
 referrence_table_lookup <- function(x,type){
 country_clean <-   switch (type,
@@ -132,7 +128,7 @@ g + geom_boxplot(aes(x = Country, y = New_Deaths, color = Country)) + theme(axis
 ![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
 
 ``` r
-g +geom_histogram(aes(x = New_Deaths, group = Country, color = Country, y = ..density..), position = "dodge") + stat_density(aes(x = New_Deaths),geom = "line", color = "green") + labs(title = "Density histogram of New Deaths with a distribution line overlayed", caption = "Clearly left skewed moth days days we had 'low' number of new deaths") + xlab("New Confirmed")
+g +geom_histogram(aes(x = New_Deaths, group = Country, color = Country, y = ..density..), position = "dodge") + stat_density(aes(x = New_Deaths),geom = "line", color = "green") + labs(title = "Density histogram of New Deaths with a distribution line overlayed", caption = "Clearly Right skewed moth days days we had 'low' number of new deaths") + xlab("New Confirmed")
 ```
 
 ![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->
