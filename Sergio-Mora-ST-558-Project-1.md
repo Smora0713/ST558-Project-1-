@@ -59,19 +59,23 @@ referrence_table <- referrence_table %>% mutate(continent = countrycode(sourceva
 
 #Creating a function to pull in any country data.
 referrence_table_lookup <- function(x,type){
-country_clean <-   switch (type,
-    Country = referrence_table %>% filter(Country == x) %>% select(Slug),
-    Slug = referrence_table %>% filter(Slug == x) %>% select(Slug),
-    ISO2 = referrence_table %>% filter(ISO2 == x) %>% select(Slug)
+  country_clean <-   switch (type,
+  Country = referrence_table %>% filter(Country == x) %>% select(Slug),
+  Slug = referrence_table %>% filter(Slug == x) %>% select(Slug),
+  ISO2 = referrence_table %>% filter(ISO2 == x) %>% select(Slug)
   )
-return(fromJSON(paste0("https://api.covid19api.com/live/country/",country_clean,"/status/confirmed"))
-)
+  return(fromJSON(paste0("https://api.covid19api.com/live/country/",country_clean,"/status/confirmed"))
+  )
 }
 
 
 referrence_table_clean <- function(x,type){
-referrence_table_lookup(x,type) %>% filter(Date > as.Date("2021-01-01")) %>% group_by(Country,Date) %>% summarise(sum_of_Confirmed = sum(Confirmed),sum_of_Deaths = sum(Deaths),sum_of_Active = sum(Active))  %>% mutate(New_Confirmed = (sum_of_Confirmed - lag(sum_of_Confirmed)),New_Deaths = (sum_of_Deaths - lag(sum_of_Deaths)),New_Active = (sum_of_Active - lag(sum_of_Active)),Date = ymd_hms(Date))
-  }
+  referrence_table_lookup(x,type) %>% 
+  filter(Date > as.Date("2021-01-01")) %>% 
+  group_by(Country,Date) %>% 
+  summarise(sum_of_Confirmed = sum(Confirmed),sum_of_Deaths = sum(Deaths),sum_of_Active = sum(Active))  %>% 
+  mutate(New_Confirmed = (sum_of_Confirmed - lag(sum_of_Confirmed)),New_Deaths = (sum_of_Deaths - lag(sum_of_Deaths)),New_Active = (sum_of_Active - lag(sum_of_Active)),Date = ymd_hms(Date))
+}
 ```
 
 # Contingency Table
@@ -82,7 +86,8 @@ regards to any preditive models we could build but it’s nice to know.
 There are a few terretories that are not accounted.
 
 ``` r
-table(referrence_table$continent) %>% kable(col.names = c("Continent", "Frequency"))
+table(referrence_table$continent) %>% 
+kable(col.names = c("Continent", "Frequency"))
 ```
 
 | Continent | Frequency |
@@ -114,37 +119,55 @@ Because I don’t understand what negative new deaths means I will remove
 them for this analysis.
 
 ``` r
-g <- ggplot(Full_data %>% filter(New_Deaths >= 0))
+g <- ggplot(Full_data %>% 
+              filter(New_Deaths >= 0))
 
-g + geom_point(aes(x = New_Confirmed, y = New_Deaths, color = Country)) + geom_smooth(aes(x = New_Confirmed, y = New_Deaths),method = "lm") + labs(title = "Scatter plot of New Confirmed cases Vs New Deaths along with a linear model.", caption = "There is a clear positive correlation.") + ylab("New Deaths") + xlab("New Confirmed")
+g + geom_point(aes(x = New_Confirmed, y = New_Deaths, color = Country)) + 
+  geom_smooth(aes(x = New_Confirmed, y = New_Deaths),method = "lm") + 
+  labs(title = "Scatter plot of New Confirmed cases Vs New Deaths along with a linear model.", caption = "There is a clear positive correlation.") +
+  ylab("New Deaths") + xlab("New Confirmed")
 ```
 
-![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
-g + geom_boxplot(aes(x = Country, y = New_Deaths, color = Country)) + theme(axis.text.x = element_text(angle = -15,hjust = -.1)) + labs(title = "Box Plot between Country and New Deaths", caption = "We see a few outliers") + ylab("New Deaths") + xlab("")
+g + geom_boxplot(aes(x = Country, y = New_Deaths, color = Country)) + 
+  theme(axis.text.x = element_text(angle = -15,hjust = -.1)) + 
+  labs(title = "Box Plot between Country and New Deaths", caption = "We see a few outliers") + 
+  ylab("New Deaths") + 
+  xlab("")
 ```
 
-![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
 
 ``` r
-g +geom_histogram(aes(x = New_Deaths, group = Country, color = Country, y = ..density..), position = "dodge") + stat_density(aes(x = New_Deaths),geom = "line", color = "green") + labs(title = "Density histogram of New Deaths with a distribution line overlayed", caption = "Clearly Right skewed moth days days we had 'low' number of new deaths") + xlab("New Confirmed")
+g + geom_histogram(aes(x = New_Deaths, group = Country, color = Country, y = ..density..), position = "dodge") + 
+  stat_density(aes(x = New_Deaths),geom = "line", color = "green") + 
+  labs(title = "Density histogram of New Deaths with a distribution line overlayed", caption = "Clearly Right skewed moth days days we had 'low' number of new deaths") + xlab("New Confirmed")
 ```
 
-![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->
+![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
 
 ``` r
-g + geom_line(aes(x = Date,y = New_Deaths, group = Country, color = Country)) + labs(title = "New Confimed cases by country", caption = "Clear spikes that seem to lign up with our outliers") + ylab("Newly Confirmed Deaths")
+g + geom_line(aes(x = Date,y = New_Deaths, group = Country, color = Country)) + 
+  labs(title = "New Confimed cases by country", caption = "Clear spikes that seem to lign up with our outliers") + 
+  ylab("Newly Confirmed Deaths")
 ```
 
-![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-5-4.png)<!-- -->
+![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-6-4.png)<!-- -->
 
 ``` r
-Summary_data <- Full_data %>% group_by(Country) %>% summarise(Avg_Deaths = mean(New_Deaths, na.rm = TRUE), Avg_Confirmed = mean(New_Confirmed, na.rm = TRUE))
+Summary_data <- Full_data %>% 
+  group_by(Country) %>% 
+  summarise(Avg_Deaths = mean(New_Deaths, na.rm = TRUE), Avg_Confirmed = mean(New_Confirmed, na.rm = TRUE))
 
 q <- ggplot(melt(Summary_data), aes(x = Country, y = value, fill = variable, color = variable))
 
-q + geom_bar(stat = "identity", position = "dodge") + theme(axis.text.x = element_text(angle = -15,hjust = -.1)) + labs(title = "Average cases VS Average Deaths by country", caption = "We see only a 'small' percentage of cases are dying on average") + ylab("Average cases Confirmed or Dead") + xlab("")
+q + geom_bar(stat = "identity", position = "dodge") + 
+  theme(axis.text.x = element_text(angle = -15,hjust = -.1)) + 
+  labs(title = "Average cases VS Average Deaths by country", caption = "We see only a 'small' percentage of cases are dying on average") + 
+  ylab("Average cases Confirmed or Dead") + 
+  xlab("")
 ```
 
-![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-5-5.png)<!-- -->
+![](Sergio-Mora-ST-558-Project-1_files/figure-gfm/unnamed-chunk-6-5.png)<!-- -->
