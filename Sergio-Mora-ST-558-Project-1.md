@@ -11,6 +11,12 @@ Sergio Mora
   - [Creating New Data Sets](#creating-new-data-sets)
   - [Numerical Summaries / Plots](#numerical-summaries--plots)
 
+Now as we are over a year and a half into lockdown and COVID we will
+take a look at some of the stats available to us. None of them are good
+so let’s start of with some humor.
+
+![](%22C:/Users/14154/Documents/School/NCSU/STAT%20558/R%20project%201/ST558-Project-1-/Funny%20Covid%20states.jpg%22)
+
 # Required Packages for this Vingette
 
   - The `lubridate` for date manipulation
@@ -55,7 +61,8 @@ referrence_table <- fromJSON(
 
 
 # This gives us the continent that each country belong in. There are a few exception that this function does not count for, we will not acocunt for these manually since we are not looking at these individually and because my geography skills are awful.
-referrence_table <- referrence_table %>% mutate(continent = countrycode(sourcevar = referrence_table[, "Slug"], origin = "country.name", destination = "continent"))
+referrence_table <- referrence_table %>% 
+  mutate(continent = countrycode(sourcevar = referrence_table[, "Slug"], origin = "country.name", destination = "continent"))
 
 #Creating a function to pull in any country data.
 referrence_table_lookup <- function(x,type){
@@ -69,12 +76,13 @@ referrence_table_lookup <- function(x,type){
 }
 
 
-referrence_table_clean <- function(x,type){
+referrence_table_clean <- function(x,type,date1 = "2021-01-01",date2 = "3000-01-01",NEW_DEATHS_MIN = 0,...){
   referrence_table_lookup(x,type) %>% 
-  filter(Date > as.Date("2021-01-01")) %>% 
+  filter(Date >= as.Date(date1) & Date <= as.Date(date2)) %>% 
   group_by(Country,Date) %>% 
   summarise(sum_of_Confirmed = sum(Confirmed),sum_of_Deaths = sum(Deaths),sum_of_Active = sum(Active))  %>% 
-  mutate(New_Confirmed = (sum_of_Confirmed - lag(sum_of_Confirmed)),New_Deaths = (sum_of_Deaths - lag(sum_of_Deaths)),New_Active = (sum_of_Active - lag(sum_of_Active)),Date = ymd_hms(Date))
+  mutate(New_Confirmed = (sum_of_Confirmed - lag(sum_of_Confirmed)),New_Deaths = (sum_of_Deaths - lag(sum_of_Deaths)),New_Active = (sum_of_Active - lag(sum_of_Active)),Date = ymd_hms(Date)) %>%
+  filter(New_Deaths > NEW_DEATHS_MIN)
 }
 ```
 
@@ -119,8 +127,7 @@ Because I don’t understand what negative new deaths means I will remove
 them for this analysis.
 
 ``` r
-g <- ggplot(Full_data %>% 
-              filter(New_Deaths >= 0))
+g <- ggplot(Full_data)
 
 g + geom_point(aes(x = New_Confirmed, y = New_Deaths, color = Country)) + 
   geom_smooth(aes(x = New_Confirmed, y = New_Deaths),method = "lm") + 

@@ -8,6 +8,12 @@ output:
     toc_depth: 1
 ---
 
+Now as we are over a year and a half into lockdown and COVID we will take a look at some of the stats available to us. None of them are good so let's start of with some humor.
+
+![Funny Covid](./Funny Covid stats.jpg)
+
+Great now that we all had a good laugh let's take a look at some pretty depressing stats.
+
 # Required Packages for this Vingette
 
   - The `lubridate` for date manipulation
@@ -80,7 +86,6 @@ referrence_table_clean <- function(x,type,date1 = "2021-01-01",date2 = "3000-01-
   mutate(New_Confirmed = (sum_of_Confirmed - lag(sum_of_Confirmed)),New_Deaths = (sum_of_Deaths - lag(sum_of_Deaths)),New_Active = (sum_of_Active - lag(sum_of_Active)),Date = ymd_hms(Date)) %>%
   filter(New_Deaths > NEW_DEATHS_MIN)
 }
-names(referrence_table_clean("US","ISO2"))
 
 ```
 
@@ -97,8 +102,6 @@ kable(col.names = c("Continent", "Frequency"))
 Now that we have created two functions that will allow us to pull data directly from the API for any country available we will now create a few datasets to review. I live in the U.S. but I was born and raised in Venezuela. For this reason I am currous how Venezuela compares to the U.S. in covid cases. For good measure we will also through in France and Colombia, these are countries that I have spent some time in growing up. There is no need to further manipulate our data since we took care of that in our functions above.
 ```{r, message=FALSE}
 Full_data <- bind_rows(referrence_table_clean("US","ISO2"),referrence_table_clean("venezuela","Slug"),referrence_table_clean("France","Country"),referrence_table_clean("Colombia","Country"))
-
-Full_data
 ```
 
 

@@ -11,6 +11,15 @@ Sergio Mora
   - [4 Creating New Data Sets](#creating-new-data-sets)
   - [5 Numerical Summaries / Plots](#numerical-summaries--plots)
 
+Now as we are over a year and a half into lockdown and COVID we will
+take a look at some of the stats available to us. None of them are good
+so let’s start of with some humor.
+
+![Funny Covid](./Funny%20Covid%20stats.jpg)
+
+Great now that we all had a good laugh let’s take a look at some pretty
+depressing stats.
+
 # 1 Required Packages for this Vingette
 
   - The `lubridate` for date manipulation
@@ -78,10 +87,7 @@ referrence_table_clean <- function(x,type,date1 = "2021-01-01",date2 = "3000-01-
   mutate(New_Confirmed = (sum_of_Confirmed - lag(sum_of_Confirmed)),New_Deaths = (sum_of_Deaths - lag(sum_of_Deaths)),New_Active = (sum_of_Active - lag(sum_of_Active)),Date = ymd_hms(Date)) %>%
   filter(New_Deaths > NEW_DEATHS_MIN)
 }
-names(referrence_table_clean("US","ISO2"))
 ```
-
-    ## [1] "Country"          "Date"             "sum_of_Confirmed" "sum_of_Deaths"    "sum_of_Active"    "New_Confirmed"    "New_Deaths"       "New_Active"
 
 # 3 Contingency Table
 
@@ -116,24 +122,7 @@ that in our functions above.
 
 ``` r
 Full_data <- bind_rows(referrence_table_clean("US","ISO2"),referrence_table_clean("venezuela","Slug"),referrence_table_clean("France","Country"),referrence_table_clean("Colombia","Country"))
-
-Full_data
 ```
-
-    ## # A tibble: 375 x 8
-    ##    Country                  Date                sum_of_Confirmed sum_of_Deaths sum_of_Active New_Confirmed New_Deaths New_Active
-    ##    <chr>                    <dttm>                         <int>         <int>         <int>         <int>      <int>      <int>
-    ##  1 United States of America 2021-06-26 00:00:00         33602388        603522      32998866         11928        347      11644
-    ##  2 United States of America 2021-06-27 00:00:00         33610083        603664      33006419          7695        142       7553
-    ##  3 United States of America 2021-06-28 00:00:00         33624624        603963      33020661         14541        299      14242
-    ##  4 United States of America 2021-06-29 00:00:00         33639905        604111      33035794         15281        148      15133
-    ##  5 United States of America 2021-06-30 00:00:00         33651211        604433      33046778         11306        322      10984
-    ##  6 United States of America 2021-07-01 00:00:00         33664616        604711      33059905         13405        278      13127
-    ##  7 United States of America 2021-07-02 00:00:00         33678118        605009      33073109         13502        298      13204
-    ##  8 United States of America 2021-07-03 00:00:00         33692813        605309      33087504         14695        300      14395
-    ##  9 United States of America 2021-07-04 00:00:00         33713521        605490      33108031         20708        181      20527
-    ## 10 United States of America 2021-07-05 00:00:00         33716781        605523      33111258          3260         33       3227
-    ## # ... with 365 more rows
 
 # 5 Numerical Summaries / Plots
 
@@ -149,7 +138,7 @@ g + geom_point(aes(x = New_Confirmed, y = New_Deaths, color = Country)) +
   ylab("New Deaths") + xlab("New Confirmed")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 g + geom_boxplot(aes(x = Country, y = New_Deaths, color = Country)) + 
@@ -159,7 +148,7 @@ g + geom_boxplot(aes(x = Country, y = New_Deaths, color = Country)) +
   xlab("")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-39-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
 
 ``` r
 g + geom_histogram(aes(x = New_Deaths, group = Country, color = Country, y = ..density..), position = "dodge") + 
@@ -167,7 +156,7 @@ g + geom_histogram(aes(x = New_Deaths, group = Country, color = Country, y = ..d
   labs(title = "Density histogram of New Deaths with a distribution line overlayed", caption = "Clearly Right skewed moth days days we had 'low' number of new deaths") + xlab("New Confirmed")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-39-3.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
 
 ``` r
 g + geom_line(aes(x = Date,y = New_Deaths, group = Country, color = Country)) + 
@@ -175,7 +164,7 @@ g + geom_line(aes(x = Date,y = New_Deaths, group = Country, color = Country)) +
   ylab("Newly Confirmed Deaths")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-39-4.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-6-4.png)<!-- -->
 
 ``` r
 Summary_data <- Full_data %>% 
@@ -191,4 +180,4 @@ q + geom_bar(stat = "identity", position = "dodge") +
   xlab("")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-39-5.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-6-5.png)<!-- -->
