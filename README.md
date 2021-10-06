@@ -43,7 +43,8 @@ rmarkdown::render("./Sergio Mora ST 558 Project 1.RMD",
                 toc = TRUE,
                 toc_depth = '1',
                 number_sections = TRUE,
-                df_print = 'tibble'
+                df_print = 'tibble',
+                html_preview = FALSE
                 )
               )
 ```
