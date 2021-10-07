@@ -54,7 +54,7 @@ We are creating two functions:
 
   - `referrence_table_lookup()`: which lets us pull any countries covid data based on our input. This will be helpful if we want to loop through these countries to get similar analysis across the board.
   
-  - `referrence_table_clean()`: which pulls in `referrence_table_lookup()` and cleans it up to how we want to see the data for our plots down below. We also create a few new variables which we will use for out Exploratory Data Analysis (EDA).
+  - `referrence_table_clean()`: which pulls in `referrence_table_lookup()` and cleans it up to how we want to see the data for our plots down below. We also create a few new variables which we will use for out Exploratory Data Analysis (EDA). With this function the user can choose the country they want to see, the date range with a minimum data and a maximum date, and a minimum of new deaths. This allows for new the user to easily manipulate the data that they see. We are also allowing for further criteria to our function to be passed through.
 
 ```{r, message=FALSE, warning=FALSE}
 referrence_table <- fromJSON(

@@ -54,6 +54,11 @@ We are creating two functions:
     `referrence_table_lookup()` and cleans it up to how we want to see
     the data for our plots down below. We also create a few new
     variables which we will use for out Exploratory Data Analysis (EDA).
+    With this function the user can choose the country they want to see,
+    the date range with a minimum data and a maximum date, and a minimum
+    of new deaths. This allows for new the user to easily manipulate the
+    data that they see. We are also allowing for further criteria to our
+    function to be passed through.
 
 <!-- end list -->
 
